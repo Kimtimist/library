@@ -253,20 +253,22 @@ function openTrackModal(info) {
   }
 }
 
-function closeTrackModal({ fromPopstate = false } = {}) {
-  if (!modalEl.classList.contains("show")) return;
+function closeTrackModal({ fromPopstate = false, skipHistoryBack = false } = {}) {
+  if (!modalEl.classList.contains("show")) {
+    modalHistoryPushed = false;
+    return;
+  }
 
   modalEl.classList.remove("show");
 
-  // If user closes modal manually (X / backdrop),
-  // remove the pushed modal state by going back once.
-  if (!fromPopstate) {
+  // 모달을 수동으로 닫는 경우에만(= X 버튼/배경 클릭)
+  // 그리고 라우트 변경/렌더링 중이면 skipHistoryBack=true로 막는다.
+  if (!fromPopstate && !skipHistoryBack) {
     if (modalHistoryPushed && history.state && history.state.modal === "track") {
-      history.back(); // this will trigger popstate; handler will just ensure it's closed
+      history.back();
     }
   }
 
-  // reset flag (safe to reset even if popstate comes after)
   modalHistoryPushed = false;
 }
 
@@ -934,8 +936,8 @@ function applyRouteFromHash() {
   const parts = hash.split("/");
   const route = parts[0];
 
-  // always close modal when route changes (safe)
-  if (modalEl.classList.contains("show")) closeTrackModal({ fromPopstate: false });
+  // 라우트 전환 중에는 history.back()이 실행되면 안 됨
+  if (modalEl.classList.contains("show")) closeTrackModal({ skipHistoryBack: true });
 
   if (route === "artists") {
     setView("artists");
