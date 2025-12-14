@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>My Vinyl Library</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #121212;
+      color: #e5e7eb;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .page {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 20px 16px 48px;
+    }
+
+    /* 헤더: 집 아이콘 + 타이틀 */
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+.home-icon-button {
+  border-radius: 999px;
+  border: 1px solid #4b5563;
+  background: #111827;
+  color: #e5e7eb;
+  font-size: 20px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+    h1 {
+      font-size: 22px;
+      margin: 0;
+    }
+
+    .card {
+      border-radius: 18px;
+      border: 1px solid #1f2937;
+      background: #1a1a1a;
+      padding: 16px 14px;
+      margin-bottom: 14px;
+    }
+
+    /* 검색 영역 */
+    .search-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .search-input-wrap {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      background: #1a1a1a;
+      padding: 8px 14px;
+      min-height: 40px;
+    }
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: #e5e7eb;
+      font-size: 14px;
+    }
+    .search-input::placeholder {
+      color: #64748b;
+    }
+.search-button {
+  border-radius: 999px;
+  border: 1px solid #4b5563;
+  background: #111827;
+  color: #e5e7eb;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+    /* 필터 버튼: 한 줄 스크롤 + filter: 라벨 */
+    .filter-row {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      font-size: 13px;
+      color: #9ca3af;
+      align-items: center;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .filter-row::-webkit-scrollbar {
+      display: none;
+    }
+    .filter-label {
+      flex: 0 0 auto;
+      margin-right: 4px;
+    }
+    .filter-chip {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      background: #1a1a1a;
+      cursor: pointer;
+      user-select: none;
+      font-size: 13px;
+      min-height: 34px;
+      white-space: nowrap;
+    }
+    .filter-chip input {
+      display: none;
+    }
+    .filter-chip-active {
+      border-color: #0ea5e9;
+      background: #0f172a;
+      color: #e0f2fe;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    /* Artists 타이틀만 30% 정도 크게 */
+    .section-title.artists-title {
+      font-size: 18px;
+    }
+
+    .section-caption {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    /* A~Z / 가나다 버튼: 살짝 키우고 가로 스크롤 */
+    .az-row {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      font-size: 12px;
+      margin-bottom: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    .az-row::-webkit-scrollbar {
+      display: none;
+    }
+    .az-button {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      background: #1a1a1a;
+      color: #9ca3af;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .az-button.active {
+      border-color: #0ea5e9;
+      background: #0f172a;
+      color: #e0f2fe;
+    }
+
+    /* 리스트 공통 */
+    .list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .artist-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 14px;
+    }
+    .artist-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 10px 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      /* 아주 옅은 가로줄 느낌 */
+      box-shadow: inset 0 -1px 0 #1f2937;
+    }
+    .artist-item.selected {
+      background: #0f172a;
+      border: 1px solid #0ea5e9;
+      box-shadow: none;
+    }
+    .artist-name {
+      font-weight: 500;
+      font-size: 24px; /* 기존보다 크게 */
+    }
+    .artist-meta {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+
+    .album-list,
+    .track-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+    }
+    .album-item,
+    .track-item {
+      padding: 8px 8px;
+      border-radius: 10px;
+      border: 1px solid #111827;
+      background: #1a1a1a;
+      cursor: pointer;
+    }
+    .album-item.selected {
+      border-color: #0ea5e9;
+      background: #0f172a;
+    }
+    .album-main {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .album-sub,
+    .track-sub {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .track-main {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    /* 페이지네이션: A~Z 버튼과 같은 크기 */
+    .artist-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+      flex-wrap: wrap;
+    }
+    .page-btn,
+    .page-num {
+      margin: 0 2px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      background: #1a1a1a;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 13px;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .page-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+    .page-num.active {
+      border-color: #0ea5e9;
+      background: #0f172a;
+      color: #e0f2fe;
+    }
+
+    /* 검색 결과 */
+    .search-results {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 14px;
+    }
+    .result-item {
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid #1f2937;
+      background: #1a1a1a;
+      cursor: pointer;
+    }
+    .result-type {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 2px;
+    }
+    .result-main {
+      font-weight: 500;
+      margin-bottom: 3px;
+    }
+    .result-sub {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      margin-right: 4px;
+      margin-top: 3px;
+    }
+
+    /* Back 표시 */
+    .back-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #9ca3af;
+      cursor: pointer;
+      margin-bottom: 6px;
+    }
+    .back-row span.icon {
+      font-size: 16px;
+    }
+
+    /* 모달 */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .modal-backdrop.show {
+      display: flex;
+    }
+    .modal-card {
+      max-width: 380px;
+      width: calc(100% - 40px);
+      border-radius: 18px;
+      border: 1px solid #1f2937;
+      background: #1a1a1a;
+      padding: 16px 16px 14px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      font-size: 19px;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .modal-title {
+      font-size: 21px;
+      font-weight: 600;
+    }
+    .modal-close {
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      font-size: 26px;
+      cursor: pointer;
+      padding: 0 2px;
+    }
+    .modal-row {
+      margin-bottom: 10px;
+    }
+    .modal-label {
+      font-size: 18px;
+      color: #9ca3af;
+      margin-right: 4px;
+      display: inline-block;
+      min-width: 100px;
+    }
+    .modal-value {
+      font-size: 19px;
+      color: #e5e7eb;
+    }
+    .modal-tags {
+      margin-top: 4px;
+    }
+    /* === 검색 결과 타입별 색상 (형광 느낌) === */
+    .result-type-artist {
+      color: #22c55e;
+      font-weight: 600;
+    }
+
+    .result-type-album {
+      color: #0ea5e9;
+      font-weight: 600;
+    }
+    
+    .result-type-song {
+      color: #f97316;
+      font-weight: 600;
+    }
+    
+    /* === 검색 결과 페이지네이션 === */
+    .search-pagination {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+      justify-content: center;
+    }
+
+    .search-page-btn,
+    .search-page-num {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      background: #1a1a1a;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 12px;
+      min-width: 34px;
+      text-align: center;
+    }
+
+    .search-page-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+    
+    .search-page-num.active {
+      border-color: #0ea5e9;
+      background: #0f172a;
+      color: #e0f2fe;
+    }
+    
+    /* === Album / Track 제목을 더 굵고 약간 크게 === */
+    .album-main {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    
+    .track-main {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    /* === Track Details 레이아웃 정렬 & 줄바꿈 보정 === */
+    .modal-row {
+      margin-bottom: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    
+    .modal-label {
+      font-size: 15px;
+      color: #9ca3af;
+      min-width: 80px;
+      flex-shrink: 0;
+    }
+    
+    .modal-value {
+      font-size: 17px;
+      color: #e5e7eb;
+      flex: 1;
+      word-break: break-word;
+    }
+    
+    .modal-tags {
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- 헤더: 집 아이콘 + 타이틀 -->
+    <div class="header-row">
+      <button id="homeButton" class="home-icon-button" aria-label="Home">🏠</button>
+      <h1>My Vinyl Library</h1>
+    </div>
+
+    <!-- 검색 영역 -->
+    <div class="card">
+      <div class="search-row">
+        <div class="search-input-wrap">
+          <input
+            id="searchInput"
+            class="search-input"
+            placeholder="Search all"
+          />
+          <button id="searchButton" class="search-button" aria-label="Search">🔍</button>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">Filter:</span>
+
+          <label class="filter-chip filter-chip-active">
+            <input type="checkbox" data-filter="artist" checked />
+            Artist
+          </label>
+          <label class="filter-chip filter-chip-active">
+            <input type="checkbox" data-filter="album" checked />
+            Album
+          </label>
+          <label class="filter-chip filter-chip-active">
+            <input type="checkbox" data-filter="genre" checked />
+            Genre
+          </label>
+          <label class="filter-chip filter-chip-active">
+            <input type="checkbox" data-filter="tag" checked />
+            #Tag
+          </label>
+          <label class="filter-chip filter-chip-active">
+            <input type="checkbox" data-filter="song" checked />
+            Song
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explorer -->
+    <div class="card" id="explorerCard">
+      <!-- Artist 페이지 -->
+      <div id="artistView">
+        <div class="section-title artists-title">Artists</div>
+
+        <div style="font-size:12px;color:#9ca3af;margin-bottom:4px;">A–Z</div>
+        <div id="latinRow" class="az-row"></div>
+
+        <div style="font-size:12px;color:#9ca3af;margin-top:8px;margin-bottom:4px;">가–하</div>
+        <div id="hangulRow" class="az-row"></div>
+
+        <div class="list-container">
+          <div id="artistList" class="artist-list"></div>
+          <div id="artistPagination" class="artist-pagination">
+            <button id="artistPrev" class="page-btn">Prev</button>
+            <span id="artistPages"></span>
+            <button id="artistNext" class="page-btn">Next</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Album 페이지 -->
+      <div id="albumView" style="display:none;">
+        <div class="back-row" id="backToArtists">
+          <span class="icon">←</span>
+          <span>이전으로 돌아가기</span>
+        </div>
+        <div class="section-title" id="albumArtistTitle">Artist</div>
+        <div class="section-caption">
+          아티스트의 앨범을 선택하면 트랙 리스트 페이지로 이동합니다.
+        </div>
+        <div class="list-container">
+          <div id="albumListPage" class="album-list"></div>
+        </div>
+      </div>
+
+      <!-- Track 페이지 -->
+      <div id="trackView" style="display:none;">
+        <div class="back-row" id="backToAlbums">
+          <span class="icon">←</span>
+          <span>이전으로 돌아가기</span>
+        </div>
+        <div class="section-title" id="trackAlbumTitle">Album</div>
+        <div class="section-caption">
+          트랙을 선택하면 팝업으로 상세 정보를 확인할 수 있습니다.
+        </div>
+        <div class="list-container">
+          <div id="trackListPage" class="track-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 검색 결과 -->
+    <div class="card" id="searchCard" style="display:none;">
+      <div class="section-title">Search Results</div>
+      <div id="searchInfo" style="font-size:12px;color:#9ca3af;margin-bottom:4px;">
+        검색어를 입력하거나 필터를 조정해보세요.
+      </div>
+      <div id="results" class="search-results"></div>
+      <div id="searchPagination" class="search-pagination"></div>
+    </div>
+  </div>
+
+  <!-- 트랙 상세 모달 -->
+  <div id="trackModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Track Details</div>
+        <button class="modal-close" id="modalCloseBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-row">
+          <span class="modal-label">Artist</span>
+          <span class="modal-value" id="mArtist"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-label">Album</span>
+          <span class="modal-value" id="mAlbum"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-label">Track No</span>
+          <span class="modal-value" id="mTrackNo"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-label">Title</span>
+          <span class="modal-value" id="mTitle"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-label">Location</span>
+          <span class="modal-value" id="mLocation"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-label">Genre</span>
+          <span class="modal-value" id="mGenre"></span>
+        </div>
+        <div class="modal-row modal-tags">
+          <span class="modal-label">Mood Tags</span>
+          <span class="modal-value" id="mTags"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-label">Note</span>
+          <span class="modal-value" id="mNote"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 동작 스크립트 -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
